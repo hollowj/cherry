@@ -2,6 +2,9 @@ package cherryHandler
 
 import (
 	"context"
+	"reflect"
+	"runtime/debug"
+
 	cherryCode "github.com/cherry-game/cherry/code"
 	ccrypto "github.com/cherry-game/cherry/extend/crypto"
 	cfacade "github.com/cherry-game/cherry/facade"
@@ -10,8 +13,6 @@ import (
 	cproto "github.com/cherry-game/cherry/net/proto"
 	csession "github.com/cherry-game/cherry/net/session"
 	"go.uber.org/zap/zapcore"
-	"reflect"
-	"runtime/debug"
 )
 
 type (
@@ -46,7 +47,7 @@ func (p *ExecutorLocal) Invoke() {
 		}
 
 		if rev := recover(); rev != nil {
-			clog.Warnf("recover in Local. %s", string(debug.Stack()))
+			clog.Warnf("recover in Local. %s %s", rev, string(debug.Stack()))
 			clog.Warnf("msg = [%+v]", p.msg)
 		}
 	}()

@@ -1,19 +1,21 @@
 package cherrySession
 
 import (
+	"sync"
+
 	cerr "github.com/cherry-game/cherry/error"
 	cnuid "github.com/cherry-game/cherry/extend/nuid"
 	cfacade "github.com/cherry-game/cherry/facade"
-	"sync"
 )
 
 var (
-	lock             = &sync.RWMutex{}
-	sidMap           = make(map[cfacade.SID]*Session) // sid -> Session
-	uidMap           = make(map[cfacade.UID]*Session) // uid -> Session
-	onCreateListener = make([]SessionListener, 0)     // on create execute listener function
-	onCloseListener  = make([]SessionListener, 0)     // on close execute listener function
-	onDataListener   = make([]SessionListener, 0)     // on receive data execute listener function
+	lock                  = &sync.RWMutex{}
+	sidMap                = make(map[cfacade.SID]*Session) // sid -> Session
+	uidMap                = make(map[cfacade.UID]*Session) // uid -> Session
+	onCreateListener      = make([]SessionListener, 0)     // on create execute listener function
+	onCloseListener       = make([]SessionListener, 0)     // on close execute listener function
+	onCloseBeforeListener = make([]SessionListener, 0)     // on close before execute listener function
+	onDataListener        = make([]SessionListener, 0)     // on receive data execute listener function
 )
 
 type (
@@ -142,7 +144,9 @@ func CloseAll(cb func(session *Session)) {
 func AddOnCreateListener(listener ...SessionListener) {
 	onCreateListener = append(onCreateListener, listener...)
 }
-
+func AddOnCloseBeforeListener(listener ...SessionListener) {
+	onCloseBeforeListener = append(onCloseBeforeListener, listener...)
+}
 func AddOnCloseListener(listener ...SessionListener) {
 	onCloseListener = append(onCloseListener, listener...)
 }
