@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/cherry-game/cherry/components/timer/dep"
 	cherryLogger "github.com/cherry-game/cherry/logger"
 )
 
@@ -38,7 +39,7 @@ type Timer struct {
 	cbCronEx       func(t *Cron)
 	cbTickerEx     func(t *Ticker)
 	cbOnCloseTimer OnCloseTimer
-	cronExpr       *CronExpr
+	cronExpr       *dep.CronExpr
 	AdditionData   interface{} //定时器附加数据
 	rOpen          bool        //是否重新打开
 
@@ -55,15 +56,15 @@ type Cron struct {
 	Timer
 }
 
-var timerPool = NewPoolEx(make(chan IPoolData, 102400), func() IPoolData {
+var timerPool = dep.NewPoolEx(make(chan dep.IPoolData, 102400), func() dep.IPoolData {
 	return &Timer{}
 })
 
-var cronPool = NewPoolEx(make(chan IPoolData, 10240), func() IPoolData {
+var cronPool = dep.NewPoolEx(make(chan dep.IPoolData, 10240), func() dep.IPoolData {
 	return &Cron{}
 })
 
-var tickerPool = NewPoolEx(make(chan IPoolData, 102400), func() IPoolData {
+var tickerPool = dep.NewPoolEx(make(chan dep.IPoolData, 102400), func() dep.IPoolData {
 	return &Ticker{}
 })
 
@@ -339,7 +340,7 @@ func (dispatcher *Dispatcher) AfterFunc(d time.Duration, cb func(uint64, interfa
 	return timer
 }
 
-func (dispatcher *Dispatcher) CronFunc(cronExpr *CronExpr, cb func(uint64, interface{}), cbEx func(*Cron), onTimerClose OnCloseTimer, onAddTimer OnAddTimer) *Cron {
+func (dispatcher *Dispatcher) CronFunc(cronExpr *dep.CronExpr, cb func(uint64, interface{}), cbEx func(*Cron), onTimerClose OnCloseTimer, onAddTimer OnAddTimer) *Cron {
 	now := Now()
 	nextTime := cronExpr.Next(now)
 	if nextTime.IsZero() {

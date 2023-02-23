@@ -1,4 +1,4 @@
-package timer
+package dep
 
 import (
 	sysSync "sync"

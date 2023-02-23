@@ -1,4 +1,4 @@
-package timer
+package dep
 
 // reference: https://github.com/robfig/cron
 import (

@@ -1,0 +1,32 @@
+package timer
+
+import (
+	"testing"
+	"time"
+
+	"github.com/cherry-game/cherry/components/timer/dep"
+	cherryLogger "github.com/cherry-game/cherry/logger"
+)
+
+func TestTimer(t *testing.T) {
+	var uid int64 = 1
+	AfterFunc(uid, time.Second*5, func(timer *Timer) {
+		cherryLogger.Debug("5s after")
+	})
+	TickerFunc(uid, time.Second*2, func(timer *Ticker) {
+		cherryLogger.Debug("2s TickerFunc")
+	})
+	expr, err := dep.NewCronExpr("* * * * * *")
+	if err != nil {
+		cherryLogger.Error(err)
+		return
+	}
+	i := 0
+	CronFunc(uid, expr, func(timer *Cron) {
+		i++
+		cherryLogger.Debug("CronFunc")
+		if i == 3 {
+			timer.Cancel()
+		}
+	})
+}
