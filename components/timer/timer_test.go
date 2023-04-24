@@ -1,6 +1,7 @@
 package timer
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -29,4 +30,23 @@ func TestTimer(t *testing.T) {
 			timer.Cancel()
 		}
 	})
+}
+func TestTimer1(t *testing.T) {
+	ttimer := NewEasyTimer()
+
+	var taskChan = make(chan *TimerTask)
+	go func() {
+		select {
+		case c := <-taskChan:
+			c.timerChan <- c.callback()
+		}
+	}()
+	task := NewTimerTask(func() ITimer {
+		return ttimer.AfterFunc(time.Second, func(timer *Timer) {
+			fmt.Println(111)
+		})
+	})
+	taskChan <- task
+	cc := <-task.timerChan
+	fmt.Println(cc)
 }

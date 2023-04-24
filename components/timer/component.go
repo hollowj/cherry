@@ -44,3 +44,9 @@ func (d *TimerComponent) Name() string {
 func (d *TimerComponent) OnStop() {
 	_timer.Destroy()
 }
+func GetGTimer() *EasyTimer {
+	if _timer == nil {
+		panic("TimerComponent need register!")
+	}
+	return _timer
+}

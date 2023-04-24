@@ -75,7 +75,7 @@ func (s *EasyTimer) Destroy() {
 
 func AfterFunc(uid int64, d time.Duration, cb func(timer *Timer)) ITimer {
 	task := NewTimerTask(func() ITimer {
-		return _timer.AfterFunc(d, func(t *Timer) {
+		return GetGTimer().AfterFunc(d, func(t *Timer) {
 			cherry.PostEvent(NewTimerEvent(uid, cb, t))
 		})
 	})
@@ -85,7 +85,7 @@ func AfterFunc(uid int64, d time.Duration, cb func(timer *Timer)) ITimer {
 }
 func CronFunc(uid int64, cronExpr *dep.CronExpr, cb func(cron *Cron)) ITimer {
 	task := NewTimerTask(func() ITimer {
-		return _timer.CronFunc(cronExpr, func(t *Cron) {
+		return GetGTimer().CronFunc(cronExpr, func(t *Cron) {
 			cherry.PostEvent(NewCronEvent(uid, cb, t))
 		})
 	})
@@ -95,7 +95,7 @@ func CronFunc(uid int64, cronExpr *dep.CronExpr, cb func(cron *Cron)) ITimer {
 }
 func TickerFunc(uid int64, d time.Duration, cb func(ticker *Ticker)) ITimer {
 	task := NewTimerTask(func() ITimer {
-		return _timer.TickerFunc(d, func(t *Ticker) {
+		return GetGTimer().TickerFunc(d, func(t *Ticker) {
 			cherry.PostEvent(NewTicketEvent(uid, cb, t))
 		})
 	})
