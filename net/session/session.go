@@ -3,13 +3,12 @@ package cherrySession
 import (
 	"context"
 	"fmt"
-	"sync/atomic"
-
 	cfacade "github.com/cherry-game/cherry/facade"
 	clog "github.com/cherry-game/cherry/logger"
 	ccontext "github.com/cherry-game/cherry/net/context"
 	cproto "github.com/cherry-game/cherry/net/proto"
 	"go.uber.org/zap/zapcore"
+	"sync/atomic"
 )
 
 const (
@@ -126,16 +125,8 @@ func (s *Session) Kick(reason interface{}, close bool) {
 func (s *Session) Close() {
 	s.entity.Close()
 }
-func (s *Session) OnCloseBeforeListener() {
-	// when session closed,the func is executed
-	for _, listener := range onCloseBeforeListener {
-		if listener(s) == false {
-			break
-		}
-	}
-}
+
 func (s *Session) OnCloseListener() {
-	s.OnCloseBeforeListener()
 	// when session closed,the func is executed
 	for _, listener := range onCloseListener {
 		if listener(s) == false {
