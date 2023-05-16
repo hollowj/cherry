@@ -2,6 +2,7 @@ package cherryContext
 
 import (
 	"context"
+
 	clog "github.com/cherry-game/cherry/logger"
 	jsoniter "github.com/json-iterator/go"
 )
@@ -38,11 +39,6 @@ func GetInt64(ctx context.Context, key string) int64 {
 		return zeroInt64
 	}
 
-	f64, ok := val.(float64)
-	if ok {
-		return int64(f64)
-	}
-
 	i64, ok := val.(int64)
 	if ok {
 		return i64
@@ -57,9 +53,9 @@ func GetMessageId(ctx context.Context) uint {
 		return zeroUint
 	}
 
-	i, ok := val.(float64)
+	i, ok := val.(uint)
 	if ok {
-		return uint(i)
+		return i
 	}
 
 	return zeroUint
