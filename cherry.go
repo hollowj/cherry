@@ -2,6 +2,8 @@ package cherry
 
 import (
 	"context"
+	"time"
+
 	cfacade "github.com/cherry-game/cherry/facade"
 	clog "github.com/cherry-game/cherry/logger"
 	cagent "github.com/cherry-game/cherry/net/agent"
@@ -14,7 +16,6 @@ import (
 	cproto "github.com/cherry-game/cherry/net/proto"
 	crouter "github.com/cherry-game/cherry/net/router"
 	csession "github.com/cherry-game/cherry/net/session"
-	"time"
 )
 
 var (
@@ -112,9 +113,10 @@ func initConnector() {
 				})
 
 				// create new session
-				newSession := csession.Create(csession.NextSID(), _thisApp.NodeId(), agent)
+				csession.Create(csession.NextSID(), _thisApp.NodeId(), agent, func(session *csession.Session) {
+					agent.SetSession(session)
+				})
 				// run agent
-				agent.SetSession(newSession)
 				agent.Run()
 			})
 		}

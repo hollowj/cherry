@@ -1,10 +1,11 @@
 package cherrySession
 
 import (
+	"sync"
+
 	cerr "github.com/cherry-game/cherry/error"
 	cnuid "github.com/cherry-game/cherry/extend/nuid"
 	cfacade "github.com/cherry-game/cherry/facade"
-	"sync"
 )
 
 var (
@@ -24,13 +25,15 @@ func NextSID() cfacade.SID {
 	return cnuid.Next()
 }
 
-func Create(sid cfacade.SID, frontendId cfacade.FrontendId, network cfacade.INetwork) *Session {
+func Create(sid cfacade.SID, frontendId cfacade.FrontendId, network cfacade.INetwork, initCallback func(session *Session)) *Session {
 	session := NewSession(sid, frontendId, network)
 
 	lock.Lock()
 	sidMap[session.sid] = session
 	lock.Unlock()
-
+	if initCallback != nil {
+		initCallback(session)
+	}
 	for _, listener := range onCreateListener {
 		if listener(session) == false {
 			break
