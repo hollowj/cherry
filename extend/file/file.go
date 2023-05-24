@@ -1,14 +1,15 @@
 package cherryFile
 
 import (
-	cerr "github.com/cherry-game/cherry/error"
-	cslice "github.com/cherry-game/cherry/extend/slice"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
+
+	cerr "github.com/cherry-game/cherry/error"
+	cslice "github.com/cherry-game/cherry/extend/slice"
 )
 
 func JudgeFile(filePath string) (string, bool) {
@@ -222,4 +223,12 @@ func ReadDir(rootPath string, filePrefix, fileSuffix string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+// Exists checks whether given <path> exist.
+func Exists(path string) bool {
+	if stat, err := os.Stat(path); stat != nil && !os.IsNotExist(err) {
+		return true
+	}
+	return false
 }

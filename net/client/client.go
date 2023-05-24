@@ -2,6 +2,13 @@ package cherryClient
 
 import (
 	"crypto/tls"
+	"net"
+	"net/url"
+	"runtime/debug"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	cerr "github.com/cherry-game/cherry/error"
 	ccompress "github.com/cherry-game/cherry/extend/compress"
 	cfacade "github.com/cherry-game/cherry/facade"
@@ -13,27 +20,26 @@ import (
 	cserializer "github.com/cherry-game/cherry/net/serializer"
 	"github.com/gorilla/websocket"
 	jsoniter "github.com/json-iterator/go"
-	"net"
-	"net/url"
-	"runtime/debug"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 type (
+	Callback func(data interface{})
+
 	// Client struct
 	Client struct {
 		options
-		TagName       string           // 客户标识
-		conn          cfacade.INetConn // 连接对象
-		connected     bool             // 是否连接
-		responseMaps  sync.Map         // 响应消息队列 key:ID, value: chan *Message
-		pushBindMaps  sync.Map         // push消息绑定列表 key:route, value:OnMessageFn
-		nextID        uint32           // 消息自增id
-		closeChan     chan struct{}    // 关闭chan
-		actionChan    chan ActionFn    // 动作执行队列
-		handshakeData *HandshakeData   // handshake data
+		TagName           string           // 客户标识
+		conn              cfacade.INetConn // 连接对象
+		connected         bool             // 是否连接
+		responseMaps      sync.Map         // 响应消息队列 key:ID, value: chan *Message
+		pushBindMaps      sync.Map         // push消息绑定列表 key:route, value:OnMessageFn
+		nextID            uint32           // 消息自增id
+		closeChan         chan struct{}    // 关闭chan
+		actionChan        chan ActionFn    // 动作执行队列
+		handshakeData     *HandshakeData   // handshake data
+		unexpectedEvent   Callback         // un registered event run this callback
+		connectedCallback func()           // connected callback
+
 	}
 
 	ActionFn    func() error
@@ -244,7 +250,9 @@ func (p *Client) handleHandshake() error {
 
 	go p.handlePackets()
 	go p.handleData()
-
+	if p.connectedCallback != nil {
+		go p.connectedCallback()
+	}
 	return nil
 }
 
@@ -339,6 +347,8 @@ func (p *Client) processMessage(msg *cmsg.Message) {
 				fn(msg)
 			}
 			return
+		} else {
+			p.unexpectedEvent(msg)
 		}
 	}
 }
@@ -392,4 +402,12 @@ func (p *Client) SendRaw(typ cpacket.Type, data []byte) error {
 	}
 	_, err = p.conn.Write(pkg)
 	return err
+}
+func (c *Client) OnUnexpectedEvent(callback Callback) {
+	c.unexpectedEvent = callback
+}
+
+// OnConnected set the callback which will be called when the client connected to the server
+func (c *Client) OnConnected(callback func()) {
+	c.connectedCallback = callback
 }
