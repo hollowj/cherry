@@ -1,10 +1,11 @@
 package cherryHandler
 
 import (
+	"runtime/debug"
+
 	creflect "github.com/cherry-game/cherry/extend/reflect"
 	cfacade "github.com/cherry-game/cherry/facade"
 	clog "github.com/cherry-game/cherry/logger"
-	"runtime/debug"
 )
 
 type (
@@ -133,7 +134,7 @@ func (q *Queue) run() {
 func (q *Queue) executorInvoke(executor cfacade.IExecutor) {
 	defer func() {
 		if rev := recover(); rev != nil {
-			clog.Warnf("recover in handle group. %s", string(debug.Stack()))
+			clog.Warnf("recover in handle group.%s %s", rev, string(debug.Stack()))
 		}
 	}()
 

@@ -1,6 +1,9 @@
 package cherryHandler
 
 import (
+	"reflect"
+	"runtime/debug"
+
 	ccode "github.com/cherry-game/cherry/code"
 	cerr "github.com/cherry-game/cherry/error"
 	ccrypto "github.com/cherry-game/cherry/extend/crypto"
@@ -12,8 +15,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/net/context"
-	"reflect"
-	"runtime/debug"
 )
 
 type (
@@ -84,7 +85,7 @@ func (p *ExecutorRemote) Invoke() {
 		}
 
 		if rev := recover(); rev != nil {
-			clog.Warnf("[remote] recover in Remote. %s", string(debug.Stack()))
+			clog.Warnf("[remote] recover in Remote.%v  %s", rev, string(debug.Stack()))
 			clog.Warnf("[route = %s, data = %v]", p.rt.String(), p.data)
 		}
 	}()

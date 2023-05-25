@@ -1,9 +1,10 @@
 package cherryHandler
 
 import (
+	"runtime/debug"
+
 	cfacade "github.com/cherry-game/cherry/facade"
 	clog "github.com/cherry-game/cherry/logger"
-	"runtime/debug"
 )
 
 type (
@@ -21,7 +22,7 @@ func (p *ExecutorEvent) EventData() cfacade.IEvent {
 func (p *ExecutorEvent) Invoke() {
 	defer func() {
 		if rev := recover(); rev != nil {
-			clog.Warnf("recover in Event. %s", string(debug.Stack()))
+			clog.Warnf("recover in Event.%v %s", rev, string(debug.Stack()))
 			clog.Warnf("event = [%+v]", p.eventData)
 		}
 	}()
