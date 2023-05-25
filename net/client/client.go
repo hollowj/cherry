@@ -320,7 +320,7 @@ func (p *Client) handleData() {
 func (p *Client) processMessage(msg *cmsg.Message) {
 	defer func() {
 		if r := recover(); r != nil {
-			clog.Warnf("[%s] recover in executor. %s", p.TagName, string(debug.Stack()))
+			clog.Warnf("[%s] recover in executor.%v  %s", p.TagName, r, string(debug.Stack()))
 		}
 	}()
 
