@@ -49,7 +49,7 @@ func (pc *Client) MsgChannel() chan *cmessage.Message {
 // Return the basic structure for the Client struct.
 func newClient() *Client {
 	return &Client{
-		Client:          cherryClient.New(),
+		Client:          cherryClient.New(cherryClient.WithSerializer(cherrySerializer.NewJSON())),
 		IncomingMsgChan: make(chan *cmessage.Message, 10),
 	}
 }
