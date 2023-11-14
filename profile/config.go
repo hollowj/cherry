@@ -4,102 +4,120 @@ import (
 	"time"
 
 	cfacade "github.com/cherry-game/cherry/facade"
-	jsoniter "github.com/json-iterator/go"
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 )
 
 type (
 	Config struct {
-		jsoniter.Any
+		m map[string]any
 	}
 )
 
-func Wrap(val interface{}) *Config {
+func Wrap(val map[string]any) *Config {
 	return &Config{
-		Any: jsoniter.Wrap(val),
+		m: val,
 	}
 }
-
-func (p *Config) GetConfig(path ...interface{}) cfacade.ProfileJSON {
-	return &Config{
-		Any: p.Any.Get(path...),
-	}
-}
-
-func (p *Config) GetString(path interface{}, defaultVal ...string) string {
-	result := p.Get(path)
-	if result.LastError() != nil {
-		if len(defaultVal) > 0 {
-			return defaultVal[0]
+func (p *Config) GetConfig(path ...interface{}) cfacade.ProfileCfg {
+	if len(path) > 0 {
+		k := path[0]
+		key := cast.ToString(k)
+		if vInterface, ok := p.m[key]; ok {
+			tmp := make(map[string]interface{})
+			switch v := vInterface.(type) {
+			case []interface{}:
+				for i, value := range v {
+					tmp[cast.ToString(i)] = value
+				}
+			case map[string]interface{}:
+				tmp = v
+			}
+			return &Config{
+				m: tmp,
+			}
 		}
-		return ""
 	}
-	return result.ToString()
+	return nil
+
+}
+func (p *Config) GetString(path interface{}, defaultVal ...string) string {
+	key := path.(string)
+	if v, ok := p.m[key]; ok {
+		return cast.ToString(v)
+	}
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
+	}
+	return ""
+
 }
 
 func (p *Config) GetBool(path interface{}, defaultVal ...bool) bool {
-	result := p.Get(path)
-	if result.LastError() != nil {
-		if len(defaultVal) > 0 {
-			return defaultVal[0]
-		}
-
-		return false
+	key := path.(string)
+	if v, ok := p.m[key]; ok {
+		return cast.ToBool(v)
 	}
-
-	return result.ToBool()
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
+	}
+	return false
 }
 
 func (p *Config) GetInt(path interface{}, defaultVal ...int) int {
-	result := p.Get(path)
-	if result.LastError() != nil {
-		if len(defaultVal) > 0 {
-			return defaultVal[0]
-		}
-		return 0
+	key := path.(string)
+	if v, ok := p.m[key]; ok {
+		return cast.ToInt(v)
 	}
-
-	return result.ToInt()
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
+	}
+	return 0
 }
 
 func (p *Config) GetInt32(path interface{}, defaultVal ...int32) int32 {
-	result := p.Get(path)
-	if result.LastError() != nil {
-		if len(defaultVal) > 0 {
-			return defaultVal[0]
-		}
-		return 0
+	key := path.(string)
+	if v, ok := p.m[key]; ok {
+		return cast.ToInt32(v)
 	}
-
-	return result.ToInt32()
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
+	}
+	return 0
 }
 
 func (p *Config) GetInt64(path interface{}, defaultVal ...int64) int64 {
-	result := p.Get(path)
-	if result.LastError() != nil {
-		if len(defaultVal) > 0 {
-			return defaultVal[0]
-		}
-		return 0
+	key := path.(string)
+	if v, ok := p.m[key]; ok {
+		return cast.ToInt64(v)
 	}
-
-	return result.ToInt64()
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
+	}
+	return 0
 }
 
 func (p *Config) GetDuration(path interface{}, defaultVal ...time.Duration) time.Duration {
-	result := p.Get(path)
-	if result.LastError() != nil {
-		if len(defaultVal) > 0 {
-			return defaultVal[0]
-		}
-		return 0
+	key := path.(string)
+	if v, ok := p.m[key]; ok {
+		return cast.ToDuration(v)
 	}
-
-	return time.Duration(result.ToInt64())
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
+	}
+	return 0
 }
 
 func (p *Config) Unmarshal(value interface{}) error {
-	if p.LastError() != nil {
-		return p.LastError()
+	return mapstructure.Decode(p.m, value)
+}
+func (p *Config) Keys() []string {
+	keys := make([]string, 0, len(p.m))
+	for k := range p.m {
+		keys = append(keys, k)
 	}
-	return jsoniter.UnmarshalFromString(p.ToString(), value)
+	return keys
+}
+func (p *Config) Size() int {
+	return len(p.m)
 }

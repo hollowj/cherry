@@ -44,7 +44,7 @@ func defaultConsoleConfig() *Config {
 	return config
 }
 
-func NewConfig(jsonConfig cfacade.ProfileJSON) *Config {
+func NewConfig(jsonConfig cfacade.ProfileCfg) *Config {
 	config := &Config{}
 
 	config.LogLevel = jsonConfig.GetString("level", "debug")

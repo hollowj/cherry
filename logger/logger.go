@@ -37,7 +37,7 @@ func (c *CherryLogger) Print(v ...interface{}) {
 
 func SetNodeLogger(node cfacade.INode) {
 	nodeId = node.NodeId()
-	refLogger := node.Settings().Get("ref_logger").ToString()
+	refLogger := node.Settings().GetString("ref_logger")
 	if refLogger == "" {
 		DefaultLogger.Infof("refLogger config not found, used default console logger.")
 		return
@@ -68,13 +68,13 @@ func NewLogger(refLoggerName string, opts ...zap.Option) *CherryLogger {
 	}
 
 	loggerConfig := cprofile.GetConfig("logger")
-	if loggerConfig.LastError() != nil {
-		panic(loggerConfig.LastError())
+	if loggerConfig == nil {
+		panic("logger not found in profile file")
 	}
 
 	jsonConfig := loggerConfig.GetConfig(refLoggerName)
-	if jsonConfig.LastError() != nil {
-		panic(fmt.Sprintf("ref_logger = %s not found. error = %v", refLoggerName, jsonConfig.LastError()))
+	if jsonConfig == nil {
+		panic(fmt.Sprintf("ref_logger = %s not found.  ", refLoggerName))
 	}
 
 	config := NewConfig(jsonConfig)

@@ -39,14 +39,14 @@ func (*Component) Name() string {
 
 func (s *Component) Init() {
 	// load only the database contained in the `db_id_list`
-	mongoIdList := s.App().Settings().Get("mongo_id_list")
-	if mongoIdList.LastError() != nil || mongoIdList.Size() < 1 {
+	mongoIdList := s.App().Settings().GetConfig("mongo_id_list")
+	if mongoIdList == nil || mongoIdList.Size() < 1 {
 		clog.Warnf("[nodeId = %s] `mongo_id_list` property not exists.", s.App().NodeId())
 		return
 	}
 
 	mongoConfig := cprofile.GetConfig("mongo")
-	if mongoConfig.LastError() != nil {
+	if mongoConfig == nil {
 		panic("`mongo` property not exists in profile file.")
 	}
 
@@ -66,7 +66,7 @@ func (s *Component) Init() {
 			)
 
 			for j := 0; j < mongoIdList.Size(); j++ {
-				dbId := mongoIdList.Get(j).ToString()
+				dbId := mongoIdList.GetString(j)
 				if id != dbId {
 					continue
 				}

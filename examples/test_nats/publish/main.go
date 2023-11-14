@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/binary"
-	"github.com/nats-io/nats.go"
 	"log"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/nats-io/nats.go"
 )
 
 func Int64ToBytes(i int64) []byte {
@@ -20,7 +21,7 @@ func main() {
 	var opts []nats.Option
 	opts = setupConnOptions(opts)
 
-	var subj = "cherry.nodes.game-1.10001"
+	var subj = "cherry.nodes.game-1"
 
 	nc, err := nats.Connect(urls, opts...)
 	if err != nil {
@@ -33,7 +34,10 @@ func main() {
 			break
 		}
 
-		nc.Publish(subj, Int64ToBytes(time.Now().UnixMicro()))
+		err := nc.Publish(subj, Int64ToBytes(time.Now().UnixMicro()))
+		if err != nil {
+			log.Println(err)
+		}
 		time.Sleep(1 * time.Second)
 		i++
 	}

@@ -47,8 +47,8 @@ func (p *ETCD) Load(app cfacade.IApplication) {
 	p.ttl = 10
 
 	clusterConfig := cprofile.GetConfig("cluster").GetConfig(p.Name())
-	if clusterConfig.LastError() != nil {
-		clog.Fatalf("etcd config not found. err = %v", clusterConfig.LastError())
+	if clusterConfig == nil {
+		clog.Fatalf("etcd config not found.")
 		return
 	}
 
@@ -72,8 +72,8 @@ func (p *ETCD) OnStop() {
 	}
 }
 
-func getDialTimeout(config jsoniter.Any) time.Duration {
-	t := time.Duration(config.Get("dial_timeout_second").ToInt64()) * time.Second
+func getDialTimeout(config cfacade.ProfileCfg) time.Duration {
+	t := time.Duration(config.GetInt64("dial_timeout_second")) * time.Second
 	if t < 1*time.Second {
 		t = 3 * time.Second
 	}
@@ -81,11 +81,11 @@ func getDialTimeout(config jsoniter.Any) time.Duration {
 	return t
 }
 
-func getEndPoints(config jsoniter.Any) []string {
-	return strings.Split(config.Get("end_points").ToString(), ",")
+func getEndPoints(config cfacade.ProfileCfg) []string {
+	return strings.Split(config.GetString("end_points"), ",")
 }
 
-func (p *ETCD) loadConfig(config cfacade.ProfileJSON) {
+func (p *ETCD) loadConfig(config cfacade.ProfileCfg) {
 	p.config = clientv3.Config{
 		Logger: clog.DefaultLogger.Desugar(),
 	}

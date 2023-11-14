@@ -50,7 +50,7 @@ func New(app cfacade.IApplication, options ...OptionFunc) cfacade.ICluster {
 
 func (p *Cluster) loadNats() {
 	natsConfig := cprofile.GetConfig("cluster").GetConfig("nats")
-	if natsConfig.LastError() != nil {
+	if natsConfig == nil {
 		panic("cluster->nats config not found.")
 	}
 

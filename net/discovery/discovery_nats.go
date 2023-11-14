@@ -72,8 +72,8 @@ func (m *DiscoveryNATS) loadMember() {
 
 	//get nats config
 	config := cprofile.GetConfig("cluster").GetConfig(m.Name())
-	if config.LastError() != nil {
-		clog.Fatalf("nats config parameter not found. err = %v", config.LastError())
+	if config == nil {
+		clog.Fatalf("nats config parameter not found. ")
 	}
 
 	// get master node id

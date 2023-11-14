@@ -13,7 +13,7 @@ type Node struct {
 	nodeType   string
 	address    string
 	rpcAddress string
-	settings   cfacade.ProfileJSON
+	settings   cfacade.ProfileCfg
 	enabled    bool
 }
 
@@ -33,7 +33,7 @@ func (n *Node) RpcAddress() string {
 	return n.rpcAddress
 }
 
-func (n *Node) Settings() cfacade.ProfileJSON {
+func (n *Node) Settings() cfacade.ProfileCfg {
 	return n.settings
 }
 
@@ -55,16 +55,13 @@ func (n *Node) String() string {
 
 func GetNodeWithConfig(config *Config, nodeId string) (cfacade.INode, error) {
 	nodeConfig := config.GetConfig("node")
-	if nodeConfig.LastError() != nil {
-		return nil, cerr.Error("`nodes` property not found in profile file.")
-	}
 
 	for _, nodeType := range nodeConfig.Keys() {
 		typeJson := nodeConfig.GetConfig(nodeType)
 		for i := 0; i < typeJson.Size(); i++ {
 			item := typeJson.GetConfig(i)
 
-			if !findNodeId(nodeId, item.GetConfig("node_id")) {
+			if nodeId != item.GetString("node_id") {
 				continue
 			}
 
@@ -86,18 +83,4 @@ func GetNodeWithConfig(config *Config, nodeId string) (cfacade.INode, error) {
 
 func LoadNode(nodeId string) (cfacade.INode, error) {
 	return GetNodeWithConfig(cfg.jsonConfig, nodeId)
-}
-
-func findNodeId(nodeId string, nodeIdJson cfacade.ProfileJSON) bool {
-	if nodeIdJson.ToString() == nodeId {
-		return true
-	}
-
-	for i := 0; i < nodeIdJson.Size(); i++ {
-		if nodeIdJson.GetString(i) == nodeId {
-			return true
-		}
-	}
-
-	return false
 }

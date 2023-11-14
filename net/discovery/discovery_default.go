@@ -29,17 +29,17 @@ func (n *DiscoveryDefault) PreInit() {
 func (n *DiscoveryDefault) Load(_ cfacade.IApplication) {
 	// load node info from profile file
 	nodeConfig := cprofile.GetConfig("node")
-	if nodeConfig.LastError() != nil {
+	if nodeConfig == nil {
 		clog.Error("`node` property not found in profile file.")
 		return
 	}
 
 	for _, nodeType := range nodeConfig.Keys() {
-		typeJson := nodeConfig.Get(nodeType)
+		typeJson := nodeConfig.GetConfig(nodeType)
 		for i := 0; i < typeJson.Size(); i++ {
-			item := typeJson.Get(i)
+			item := typeJson.GetConfig(i)
 
-			nodeId := item.Get("node_id").ToString()
+			nodeId := item.GetString("node_id")
 			if nodeId == "" {
 				clog.Errorf("nodeId is empty in nodeType = %s", nodeType)
 				break
@@ -53,13 +53,13 @@ func (n *DiscoveryDefault) Load(_ cfacade.IApplication) {
 			member := &cproto.Member{
 				NodeId:   nodeId,
 				NodeType: nodeType,
-				Address:  item.Get("rpc_address").ToString(),
+				Address:  item.GetString("rpc_address"),
 				Settings: make(map[string]string),
 			}
 
-			settings := item.Get("__settings__")
+			settings := item.GetConfig("__settings__")
 			for _, key := range settings.Keys() {
-				member.Settings[key] = settings.Get(key).ToString()
+				member.Settings[key] = settings.GetString(key)
 			}
 
 			n.memberMap[member.NodeId] = member

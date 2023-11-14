@@ -1,7 +1,7 @@
 {
   "env": "gc",
   "debug": true,
-  "print_level": "info",
+  "print_level": "debug",
   "cluster": {
     "discovery": {
       "mode": "nats",
@@ -15,6 +15,17 @@
       "reconnect_delay": 1,
       "max_reconnects": 0,
       "request_timeout": 2,
+      "user": "",
+      "password": ""
+    },
+    "etcd": {
+      "end_points": "127.0.0.1:2379",
+      "@end_points": "127.0.0.1:2379",
+      "prefix" : "cherry",
+      "ttl": 5,
+      "dial_timeout": 3,
+      "dial_keep_alive_time": 1,
+      "dial_keep_alive_timeout": 1,
       "user": "",
       "password": ""
     }
@@ -56,7 +67,7 @@
     "web": [
       {
         "node_id": "gc-web-1",
-        "address": "127.0.0.1:80",
+        "address": "127.0.0.1:8080",
         "__settings__": {
           "ref_logger": "master_log"
         },

@@ -1,13 +1,13 @@
 package cherryProfile
 
 import (
+	"os"
 	"path/filepath"
 
 	cerror "github.com/cherry-game/cherry/error"
 	cfile "github.com/cherry-game/cherry/extend/file"
-	cjson "github.com/cherry-game/cherry/extend/json"
-	cstring "github.com/cherry-game/cherry/extend/string"
 	cfacade "github.com/cherry-game/cherry/facade"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -57,7 +57,7 @@ func Init(filePath, nodeId string) (cfacade.INode, error) {
 
 	p, f := filepath.Split(judgePath)
 	jsonConfig, err := loadFile(p, f)
-	if err != nil || jsonConfig.Any == nil || jsonConfig.LastError() != nil {
+	if err != nil {
 		return nil, cerror.Errorf("Load profile file error. [err = %v]", err)
 	}
 
@@ -77,32 +77,34 @@ func Init(filePath, nodeId string) (cfacade.INode, error) {
 	return node, nil
 }
 
-func GetConfig(path ...interface{}) cfacade.ProfileJSON {
+func GetConfig(path ...interface{}) cfacade.ProfileCfg {
 	return cfg.jsonConfig.GetConfig(path...)
 }
 
 func loadFile(filePath, fileName string) (*Config, error) {
-	// merge include json file
-	var maps = make(map[string]interface{})
 
 	// read master json file
 	fileNamePath := filepath.Join(filePath, fileName)
-	if err := cjson.ReadMaps(fileNamePath, maps); err != nil {
-		return nil, err
+	viper.SetConfigFile(fileNamePath)
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
 	}
+	paths := viper.GetStringSlice("include")
 
-	// read include json file
-	if v, found := maps["include"].([]interface{}); found {
-		paths := cstring.ToStringSlice(v)
-		for _, p := range paths {
-			includePath := filepath.Join(filePath, p)
-			if err := cjson.ReadMaps(includePath, maps); err != nil {
-				return nil, err
-			}
+	for _, p := range paths {
+		includePath := filepath.Join(filePath, p)
+		includeFile, err := os.Open(includePath)
+		if err != nil {
+			panic(err)
+		}
+		err = viper.MergeConfig(includeFile)
+		if err != nil {
+			panic(err)
 		}
 	}
 
-	return Wrap(maps), nil
+	return Wrap(viper.GetViper().AllSettings()), nil
 }
 
 //func judgeNameList(path, name string) ([]string, error) {

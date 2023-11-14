@@ -1,12 +1,13 @@
 package main
 
 import (
-	cherryLogger "github.com/cherry-game/cherry/logger"
-	"github.com/nats-io/nats.go"
 	"log"
 	"os"
 	"os/signal"
 	"time"
+
+	cherryLogger "github.com/cherry-game/cherry/logger"
+	"github.com/nats-io/nats.go"
 )
 
 func main() {
@@ -14,19 +15,19 @@ func main() {
 	var opts []nats.Option
 	opts = setupConnOptions(opts)
 
-	var subj = "cherry.nodes.game-1.10001"
+	var subj = "cherry.nodes.game-1/10001"
+	var subj2 = "cherry.nodes.game-1/10002"
 
 	nc, err := nats.Connect(urls, opts...)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-
 	nc.Subscribe(subj, func(msg *nats.Msg) {
 		cherryLogger.Debugf("111 msg = %v", msg)
 	})
 
-	nc.Subscribe(subj, func(msg *nats.Msg) {
+	nc.Subscribe(subj2, func(msg *nats.Msg) {
 		cherryLogger.Debugf("222 msg = %v", msg)
 	})
 	nc.Flush()

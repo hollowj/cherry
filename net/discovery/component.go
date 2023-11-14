@@ -25,7 +25,7 @@ func (*Component) Name() string {
 
 func (p *Component) Init() {
 	config := cprofile.GetConfig("cluster").GetConfig("discovery")
-	if config.LastError() != nil {
+	if config == nil {
 		clog.Error("`cluster` property not found in profile file.")
 		return
 	}

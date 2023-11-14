@@ -2,19 +2,17 @@ package cherryFacade
 
 import (
 	"time"
-
-	jsoniter "github.com/json-iterator/go"
 )
 
 type (
 	// INode 节点信息
 	INode interface {
-		NodeId() string        // 节点id(全局唯一)
-		NodeType() string      // 节点类型
-		Address() string       // 对外网络监听地址(前端节点用)
-		RpcAddress() string    // rpc监听地址(未用)
-		Settings() ProfileJSON // 节点配置参数
-		Enabled() bool         // 是否启用
+		NodeId() string       // 节点id(全局唯一)
+		NodeType() string     // 节点类型
+		Address() string      // 对外网络监听地址(前端节点用)
+		RpcAddress() string   // rpc监听地址(未用)
+		Settings() ProfileCfg // 节点配置参数
+		Enabled() bool        // 是否启用
 	}
 
 	IApplication interface {
@@ -35,10 +33,9 @@ type (
 		ActorSystem() IActorSystem         // actor系统
 	}
 
-	// ProfileJSON profile配置文件读取接口
-	ProfileJSON interface {
-		jsoniter.Any
-		GetConfig(path ...interface{}) ProfileJSON
+	// ProfileCfg profile配置文件读取接口
+	ProfileCfg interface {
+		GetConfig(path ...interface{}) ProfileCfg
 		GetString(path interface{}, defaultVal ...string) string
 		GetBool(path interface{}, defaultVal ...bool) bool
 		GetInt(path interface{}, defaultVal ...int) int
@@ -46,5 +43,7 @@ type (
 		GetInt64(path interface{}, defaultVal ...int64) int64
 		GetDuration(path interface{}, defaultVal ...time.Duration) time.Duration
 		Unmarshal(ptrVal interface{}) error
+		Keys() []string
+		Size() int
 	}
 )

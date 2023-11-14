@@ -1,13 +1,14 @@
 package cherryDataConfig
 
 import (
+	"os"
+	"time"
+
 	cerr "github.com/cherry-game/cherry/error"
 	cfile "github.com/cherry-game/cherry/extend/file"
 	clog "github.com/cherry-game/cherry/logger"
 	cprofile "github.com/cherry-game/cherry/profile"
 	"github.com/radovskyb/watcher"
-	"os"
-	"time"
 )
 
 type (
@@ -20,9 +21,9 @@ type (
 	}
 
 	fileConfig struct {
-		FilePath   string `json:"file_path"`   // 配置文件路径
-		ExtName    string `json:"ext_name"`    // 文件扩展名
-		ReloadTime int64  `json:"reload_time"` // 定时重载扫描(毫秒)
+		FilePath   string `json:"file_path" mapstructure:"file_path"`     // 配置文件路径
+		ExtName    string `json:"ext_name" mapstructure:"ext_name"`       // 文件扩展名
+		ReloadTime int64  `json:"reload_time" mapstructure:"reload_time"` // 定时重载扫描(毫秒)
 	}
 )
 

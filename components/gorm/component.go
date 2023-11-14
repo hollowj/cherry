@@ -51,7 +51,7 @@ func (s *Component) Name() string {
 	return Name
 }
 
-func parseMysqlConfig(groupId string, item cfacade.ProfileJSON) *mySqlConfig {
+func parseMysqlConfig(groupId string, item cfacade.ProfileCfg) *mySqlConfig {
 	return &mySqlConfig{
 		GroupId:        groupId,
 		Id:             item.GetString("db_id"),
@@ -68,14 +68,14 @@ func parseMysqlConfig(groupId string, item cfacade.ProfileJSON) *mySqlConfig {
 
 func (s *Component) Init() {
 	// load only the database contained in the `db_id_list`
-	dbIdList := s.App().Settings().Get("db_id_list")
-	if dbIdList.LastError() != nil || dbIdList.Size() < 1 {
+	dbIdList := s.App().Settings().GetConfig("db_id_list")
+	if dbIdList == nil || dbIdList.Size() < 1 {
 		clog.Warnf("[nodeId = %s] `db_id_list` property not exists.", s.App().NodeId())
 		return
 	}
 
 	dbConfig := cprofile.GetConfig("db")
-	if dbConfig.LastError() != nil {
+	if dbConfig == nil {
 		clog.Panic("`db` property not exists in profile file.")
 	}
 
@@ -88,7 +88,7 @@ func (s *Component) Init() {
 			mysqlConfig := parseMysqlConfig(groupId, item)
 
 			for _, key := range dbIdList.Keys() {
-				if dbIdList.Get(key).ToString() != mysqlConfig.Id {
+				if dbIdList.GetString(key) != mysqlConfig.Id {
 					continue
 				}
 

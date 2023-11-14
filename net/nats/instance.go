@@ -16,7 +16,7 @@ func SetInstance(conn *Conn) {
 	instance = conn
 }
 
-func NewFromConfig(config cfacade.ProfileJSON) *Conn {
+func NewFromConfig(config cfacade.ProfileCfg) *Conn {
 	conn := New()
 	conn.address = config.GetString("address")
 	conn.maxReconnects = config.GetInt("max_reconnects")
