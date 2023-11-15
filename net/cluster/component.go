@@ -2,7 +2,7 @@ package cherryCluster
 
 import (
 	cfacade "github.com/cherry-game/cherry/facade"
-	cherryNatsCluster "github.com/cherry-game/cherry/net/cluster/nats_cluster"
+	cherryRpcxCluster "github.com/cherry-game/cherry/net/cluster/rpcx_cluster"
 )
 
 const (
@@ -32,5 +32,5 @@ func (c *Component) OnStop() {
 }
 
 func (c *Component) loadCluster() cfacade.ICluster {
-	return cherryNatsCluster.New(c.App())
+	return cherryRpcxCluster.New(c.App())
 }
