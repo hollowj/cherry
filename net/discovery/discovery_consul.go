@@ -3,6 +3,7 @@ package cherryDiscovery
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	cfacade "github.com/cherry-game/cherry/facade"
 	clog "github.com/cherry-game/cherry/logger"
@@ -93,13 +94,30 @@ func (p *Consul) register() {
 		return
 	}
 
-	key := fmt.Sprintf(ConsulRegisterKeyFormat, p.app.NodeId())
-
-	err = p.kv.Put(key, []byte(jsonString), nil)
-	if err != nil {
-		clog.Fatal(err)
-		return
+	registerFunc := func() {
+		key := fmt.Sprintf(ConsulRegisterKeyFormat, p.app.NodeId())
+		err = p.kv.Put(key, []byte(jsonString), &store.WriteOptions{TTL: time.Second * 10 * 2})
+		if err != nil {
+			clog.Error(err)
+		}
 	}
+	registerFunc()
+	go func() {
+		ticker := time.NewTicker(time.Second * 8)
+		defer ticker.Stop()
+	loop:
+		for {
+			select {
+			case <-ticker.C:
+				registerFunc()
+			case die := <-p.app.DieChan():
+				if die {
+					break loop
+				}
+			}
+		}
+
+	}()
 }
 
 func (p *Consul) watch() {
