@@ -130,14 +130,23 @@ func (p *Consul) watch() {
 	for _, ev := range resp {
 		p.addMember(ev.Value)
 	}
-	stopCh := make(<-chan struct{})
+	stopCh := make(chan struct{})
 
 	watchChan, err := p.kv.WatchTree(ConsulKeyPrefix, stopCh)
 	go func() {
-		for rsp := range watchChan {
-			p.updateMembers(rsp)
+		for {
+			select {
+			case rsp := <-watchChan:
+				p.updateMembers(rsp)
+			case die := <-p.app.DieChan():
+				if die {
+					close(stopCh)
+				}
+			}
+
 		}
 	}()
+
 }
 
 func (p *Consul) addMember(data []byte) {
