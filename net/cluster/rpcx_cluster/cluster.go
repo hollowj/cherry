@@ -11,7 +11,7 @@ import (
 	clog "github.com/cherry-game/cherry/logger"
 	cproto "github.com/cherry-game/cherry/net/proto"
 	"github.com/rcrowley/go-metrics"
-	"github.com/rpcxio/rpcx-etcd/serverplugin"
+	"github.com/rpcxio/rpcx-consul/serverplugin"
 	"github.com/smallnest/rpcx/server"
 	"go.uber.org/zap/zapcore"
 )
@@ -52,11 +52,11 @@ func New(app cfacade.IApplication, options ...OptionFunc) cfacade.ICluster {
 	clusterClient := NewClusterClient(app)
 	clusterService := NewClusterService(app)
 	clusterConfig := getEtcdConfig()
-	end_points := clusterConfig.GetString("end_points")
+	consulAddr := clusterConfig.GetString("addr")
 	prefix := clusterConfig.GetString("prefix")
-	r := &serverplugin.EtcdV3RegisterPlugin{
+	r := &serverplugin.ConsulRegisterPlugin{
 		ServiceAddress: "tcp@" + addr,
-		EtcdServers:    []string{end_points},
+		ConsulServers:  []string{consulAddr},
 		BasePath:       prefix,
 		Metrics:        metrics.NewRegistry(),
 		UpdateInterval: time.Second * 10,

@@ -5,7 +5,7 @@
 
   [cluster]
     [cluster.discovery]
-      mode="etcd"
+      mode="consul"
 #      "@mode1": "mode=default,从profile-{x}.json读取node节点的配置数据",
 #      "@mode2": "mode=nats,通过nats->master_node_id获取已注册的节点",
 #      "@mode3": "mode=etcd,通过etcd同步已注册节点"
@@ -29,8 +29,8 @@
       user=""
       password=""
   [cluster.consul]
-      Addr = ["192.168.11.48:8500"]
-      Path = "/cherry"
+      addr = "127.0.0.1:8500"
+      prefix = "/cherry"
   [node]
     [[node.master]]
         node_id="gc-master"

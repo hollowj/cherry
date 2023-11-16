@@ -77,7 +77,7 @@ type response struct {
 }
 
 func newResponse() *response {
-	return &response{dataChan: make(chan []byte)}
+	return &response{dataChan: make(chan []byte, 1)}
 }
 func (p *response) Respond(data []byte) error {
 	p.dataChan <- data

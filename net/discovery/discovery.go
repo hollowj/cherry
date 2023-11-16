@@ -13,6 +13,7 @@ func init() {
 	Register(&DiscoveryDefault{})
 	Register(&DiscoveryNATS{})
 	Register(NewEtcd())
+	Register(NewConsul())
 }
 
 func Register(discovery cfacade.IDiscovery) {
