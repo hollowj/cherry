@@ -137,6 +137,10 @@ func (p *Consul) watch() {
 		for {
 			select {
 			case rsp := <-watchChan:
+				if rsp == nil {
+					clog.Error("consul maybe is down")
+					return
+				}
 				p.updateMembers(rsp)
 			case die := <-p.app.DieChan():
 				if die {
