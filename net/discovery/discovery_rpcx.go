@@ -107,15 +107,19 @@ func (n *ConsulRpcx) updateMembers(kvPairs []*store.KVPair) {
 	memberMap := make(map[string]cfacade.IMember) // key:nodeId,value:Member
 
 	for _, pair := range kvPairs {
-		if strings.Count(pair.Key, "/") == 2 {
-			typeStr := pair.Key[strings.LastIndex(pair.Key, "/")+1:]
-			strArr := strings.Split(typeStr, "@")
-			if len(strArr) == 2 {
-				member := &cproto.Member{
-					NodeId:   strArr[1],
-					NodeType: strArr[0],
+		if strings.Count(pair.Key, "/") == 3 {
+			nodeInfo := strings.Replace(pair.Key, ConsulRpcxKeyPrefix, "", 1)
+			nodeTuple := strings.Split(nodeInfo, "/")
+			if len(nodeTuple) == 2 {
+				strArr := strings.Split(nodeTuple[0], "@")
+				if len(strArr) == 2 {
+					member := &cproto.Member{
+						NodeId:   strArr[1],
+						NodeType: strArr[0],
+						Address:  nodeTuple[1],
+					}
+					memberMap[member.GetNodeId()] = member
 				}
-				memberMap[member.GetNodeId()] = member
 			}
 		}
 
