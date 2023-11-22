@@ -2,9 +2,6 @@ package cherryRpcxCluster
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
-	"net"
 	"time"
 
 	cherryNet "github.com/cherry-game/cherry/extend/net"
@@ -29,26 +26,8 @@ type (
 	OptionFunc func(o *Cluster)
 )
 
-func LocalIPWithAutoPortForGame(min int32, max int32) string {
-	ip := cherryNet.LocalIPV4()
-	rand.Seed(time.Now().UnixNano())
-	for {
-		site := fmt.Sprintf("%s:%d", ip, min+rand.Int31n(max-min))
-		listen, err := net.Listen("tcp", site)
-		if err == nil {
-			err = listen.Close()
-			if err != nil {
-				time.Sleep(time.Millisecond * 100)
-				continue
-			}
-			return site
-		}
-		time.Sleep(time.Millisecond * 100)
-	}
-}
-
 func New(app cfacade.IApplication, options ...OptionFunc) cfacade.ICluster {
-	addr := LocalIPWithAutoPortForGame(20000, 40000)
+	addr := cherryNet.LocalIPWithAutoPortForGame(20000, 40000)
 	s := server.NewServer()
 	clusterClient := NewClusterClient(app)
 	clusterService := NewClusterService(app)

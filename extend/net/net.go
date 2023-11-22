@@ -1,8 +1,11 @@
 package cherryNet
 
 import (
+	"fmt"
+	"math/rand"
 	"net"
 	"sync"
+	"time"
 )
 
 var localIPv4Str = "0.0.0.0"
@@ -38,4 +41,22 @@ func GetIPV4(addr net.Addr) string {
 	}
 
 	return ""
+}
+
+func LocalIPWithAutoPortForGame(min int32, max int32) string {
+	ip := LocalIPV4()
+	rand.Seed(time.Now().UnixNano())
+	for {
+		site := fmt.Sprintf("%s:%d", ip, min+rand.Int31n(max-min))
+		listen, err := net.Listen("tcp", site)
+		if err == nil {
+			err = listen.Close()
+			if err != nil {
+				time.Sleep(time.Millisecond * 100)
+				continue
+			}
+			return site
+		}
+		time.Sleep(time.Millisecond * 100)
+	}
 }
