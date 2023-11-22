@@ -1,6 +1,7 @@
 package cherryRpcxCluster
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"net"
@@ -51,7 +52,7 @@ func New(app cfacade.IApplication, options ...OptionFunc) cfacade.ICluster {
 	s := server.NewServer()
 	clusterClient := NewClusterClient(app)
 	clusterService := NewClusterService(app)
-	clusterConfig := getEtcdConfig()
+	clusterConfig := getClusterConfig()
 	consulAddr := clusterConfig.GetString("addr")
 	prefix := clusterConfig.GetString("prefix")
 	r := &serverplugin.ConsulRegisterPlugin{
@@ -95,6 +96,14 @@ func (p *Cluster) Init() {
 }
 
 func (p *Cluster) Stop() {
+	err := p.rpcServer.UnregisterAll()
+	if err != nil {
+		clog.Error(err)
+	}
+	err = p.rpcServer.Shutdown(context.TODO())
+	if err != nil {
+		clog.Error(err)
+	}
 	xclientManagerIns.Close()
 	clog.Info("rpcx cluster execute OnStop().")
 }
