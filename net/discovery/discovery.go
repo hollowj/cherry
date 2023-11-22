@@ -11,8 +11,6 @@ var (
 
 func init() {
 	Register(&DiscoveryDefault{})
-	Register(&DiscoveryNATS{})
-	Register(NewEtcd())
 	//Register(NewConsul())
 	Register(NewRpcxConsul())
 }
